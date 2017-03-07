@@ -1,0 +1,20 @@
+---
+
+- name: Install snmp and utils
+  yum: name={{ item }} state=present
+  with_items:
+   - net-snmp
+   - net-snmp-utils
+
+- name: update snmp template.
+  template: src=snmpd.conf.j2 dest=/etc/snmp/snmpd.conf
+  tags: snmp
+  notify: restart snmpd
+
+- name: restart snmpd
+  systemd:
+    name: snmpd
+    state: restarted
+    daemon_reload: yes
+    enabled: yes
+  become: yes

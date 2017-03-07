@@ -1,0 +1,12 @@
+[Unit]
+Description=snmp_exporter - Exporter for machine metrics.
+Documentation=https://github.com/William-Yeh/ansible-prometheus
+After=network.target
+
+[Service]
+Type=simple
+
+User={{ prometheus_user }}
+Group={{ prometheus_group }}
+
+ExecStart={{ prometheus_snmp_exporter_daemon_dir }}/snmp_exporter -config.file {{ prometheus_snmp_exporter_daemon_dir }}/snmp.yml

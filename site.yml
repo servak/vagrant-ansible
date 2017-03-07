@@ -1,0 +1,24 @@
+---
+# This playbook deploys the whole application stack in this site.
+
+- name: apply common configuration to all nodes
+  hosts: all
+  become: yes
+
+  roles:
+    - common
+
+- name: snmp
+  hosts: snmp
+  become: yes
+  roles:
+    - snmp
+
+- name: prometheus
+  hosts: prometheus
+  become: yes
+  roles:
+    - prometheus
+  vars:
+    prometheus_components: ["prometheus", "alertmanager", "node_exporter", "snmp_exporter"]
+    prometheus_alertmanager_url: "http://localhost:9093/"

@@ -1,0 +1,35 @@
+- name: set internal variables for convenience
+  set_fact:
+    prometheus_snmp_exporter_subdir: "{{ prometheus_install_path }}/snmp_exporter-{{ prometheus_snmp_exporter_version }}.{{ prometheus_platform_suffix }}"
+
+- name: set download url
+  set_fact:
+    prometheus_snmp_exporter_tarball_url: "https://github.com/prometheus/snmp_exporter/releases/download/v{{ prometheus_snmp_exporter_version }}/snmp_exporter-{{ prometheus_snmp_exporter_version }}.{{ prometheus_platform_suffix }}.tar.gz"
+
+- name: set daemon dir
+  set_fact:
+    prometheus_snmp_exporter_daemon_dir: "{{ prometheus_snmp_exporter_subdir }}"
+
+- name: download and untar snmp_exporter tarball
+  unarchive:
+    src: "{{ prometheus_snmp_exporter_tarball_url }}"
+    dest: "{{ prometheus_install_path }}"
+    copy: no
+
+- name: set permissions, owner and group
+  file: path={{ prometheus_snmp_exporter_daemon_dir }}/snmp_exporter owner={{ prometheus_user }} group={{ prometheus_group }} mode="go-w"
+
+- name: mkdir for data
+  file:
+    path: "{{ prometheus_db_path }}"
+    state: directory
+    owner: "{{ prometheus_user }}"
+    group: "{{ prometheus_group }}"
+    mode: "u=rwx,g=rx,o="
+
+- name: copy systemd config to server
+  template: src="../templates/snmp_exporter.service.j2"  dest="/lib/systemd/system/snmp_exporter.service"
+
+
+- name: set INIT status and start
+  service: name=snmp_exporter enabled=yes state=started
